@@ -1,12 +1,26 @@
 <template>
-  <div class="channel">
+  <div
+    class="channel"
+    :style="style"
+  >
     <div class="water"/>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'Channel'
+  name: 'Channel',
+  props: {
+    marginBottom: {
+      type: Number,
+      default: 0
+    }
+  },
+  computed: {
+    style () {
+      return `margin-bottom: ${this.marginBottom}px`
+    }
+  }
 }
 </script>
 

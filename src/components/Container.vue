@@ -1,19 +1,48 @@
 <template>
-  <div class="container">
-    <div class="water"/>
+  <div
+    class="container"
+    :style="containerStyle"
+  >
+    <div
+      class="water"
+      :style="waterStyle"
+    />
   </div>
 </template>
 
 <script>
 export default {
-  name: 'Container'
+  name: 'Container',
+  props: {
+    marginTop: {
+      type: Number,
+      default: 0
+    },
+    channelLevel: {
+      type: Number,
+      default: 0
+    },
+    waterLevel: {
+      type: Number,
+      default: 0
+    }
+  },
+  computed: {
+    waterStyle () {
+      let height = this.waterLevel
+      return `height: ${height}px`
+    },
+    containerStyle () {
+      return `margin-top: ${this.marginTop}px`
+    }
+  }
 }
 </script>
 
 <style scoped>
 .container {
   background: rgb(93, 182, 134);
-  height: 150px;
+  height: 200px;
   width: 100px;
   border-left: 15px solid rgb(56, 70, 93);
   border-right: 15px solid rgb(56, 70, 93);
@@ -24,7 +53,6 @@ export default {
 
 .water {
   width: 100%;
-  height: 100px;
   background-color: rgb(133, 235, 232);
   transition: height 500ms;
   color: white;
