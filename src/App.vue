@@ -1,18 +1,28 @@
 <template>
   <div id="app">
-    <button @click="addWaterToA">+</button>
-    <Container
-      :channel-level="channelLevelB"
-      :water-level="waterLevelA"
-    />
-    <Channel
-      :margin-bottom="channelLevelB"
-    />
-    <Container
-      :margin-top="containerDifference"
-      :channel-level="channelLevelB"
-      :water-level="waterLevelB"
-    />
+    <button
+      class="button"
+      @click="addWaterTo"
+    >
+      💦
+    </button>
+    <div class="row">
+      <Container
+        :container-height="containerHeight"
+        :channel-level="channelLevelB"
+        :water-level="waterLevelA"
+      />
+      <Channel
+        :margin-bottom="channelLevelB"
+        :water-level="waterLevelChannel"
+      />
+      <Container
+        :container-height="containerHeight"
+        :margin-top="containerDifference"
+        :channel-level="channelLevelB"
+        :water-level="waterLevelB"
+      />
+    </div>
   </div>
 </template>
 
@@ -30,6 +40,7 @@ export default {
   },
   data: function () {
     return {
+      containerHeight: 200,
       containerDifference: 40,
       channelLevelB: 80,
       waterLevelA: 20,
@@ -39,31 +50,33 @@ export default {
   computed: {
     channelLevelA: function () {
       return this.channelLevelB - this.containerDifference
+    },
+    waterLevelChannel: function () {
+      const waterExcess = this.waterLevelA - this.channelLevelA
+      return waterExcess > 0 ? waterExcess : 0
     }
   },
   methods: {
-    addWaterToA: function () {
-      this.waterLevelA += WATER_STEP
-      if (this.waterLevelA > this.channelLevelA) {
-        let amountOfWaterForB = this.waterLevelA - this.channelLevelA
-        amountOfWaterForB = amountOfWaterForB > 0 ? amountOfWaterForB : 0
-        setTimeout(() => {
-          this.addWaterToB(amountOfWaterForB)
-        }, 500)
+    addWaterTo: function () {
+      if (this.waterLevelA < this.containerHeight) {
+        this.waterLevelA += WATER_STEP
+        setTimeout(() => this.applyPhysics(), 500)
+      } else {
+        alert('Boom, too much water!')
       }
     },
-    addWaterToB: function (amountOfWater) {
-      if (this.waterLevelB - this.containerDifference < this.waterLevelA) {
-        this.waterLevelA -= WATER_STEP
-        this.waterLevelB += WATER_STEP
-      }
-      if ((this.waterLevelB - this.containerDifference) === this.waterLevelA) {
-        this.waterLevelA += (WATER_STEP / 2)
-        this.waterLevelB += (WATER_STEP / 2)
-      }
-      if ((this.waterLevelB - this.containerDifference) > this.waterLevelA) {
-        this.waterLevelA -= (WATER_STEP / 2)
-        this.waterLevelB += (WATER_STEP / 2)
+    applyPhysics: function () {
+      const waterExcessB = this.waterLevelB > this.channelLevelB ? this.waterLevelB - this.channelLevelB : 0
+      const waterExcessA = this.waterLevelA - this.channelLevelA - waterExcessB
+
+      if (waterExcessA > 0 && this.waterLevelB < this.containerHeight) {
+        if (this.waterLevelB < this.channelLevelB) {
+          this.waterLevelA -= waterExcessA
+          this.waterLevelB += waterExcessA
+        } else if (this.waterLevelB >= this.channelLevelB) {
+          this.waterLevelA -= (waterExcessA / 2)
+          this.waterLevelB += (waterExcessA / 2)
+        }
       }
     }
   }
@@ -72,7 +85,6 @@ export default {
 
 <style>
 #app {
-  display: flex;
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -80,5 +92,28 @@ export default {
   color: #2c3e50;
   margin: 60px auto 0 auto;
   width: 600px;
+}
+
+.row {
+  display: flex;
+}
+
+.button {
+  background-color: rgb(133, 235, 232);
+  border-radius:25px;
+  cursor:pointer;
+  color: rgb(56, 70, 93);
+  padding:16px 20px;
+  text-decoration:none;
+  text-shadow:0 1px 0 #283966;
+}
+
+.button:hover {
+  background-color: rgb(56, 70, 93);
+  color: #fff;
+}
+
+.button:focus {
+  outline: none;
 }
 </style>

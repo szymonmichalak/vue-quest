@@ -1,24 +1,36 @@
 <template>
   <div
     class="channel"
-    :style="style"
+    :style="containerStyle"
   >
-    <div class="water"/>
+    <div
+      class="water"
+      :style="waterStyle"
+    />
   </div>
 </template>
 
 <script>
+const maxHeight = 20
+
 export default {
   name: 'Channel',
   props: {
     marginBottom: {
       type: Number,
       default: 0
+    },
+    waterLevel: {
+      type: Number,
+      default: 0
     }
   },
   computed: {
-    style () {
+    containerStyle () {
       return `margin-bottom: ${this.marginBottom}px`
+    },
+    waterStyle () {
+      return `height: ${this.waterLevel < maxHeight ? this.waterLevel : maxHeight}px`
     }
   }
 }
@@ -40,7 +52,6 @@ export default {
 
 .water {
   width: 100%;
-  height: 100px;
   background-color: rgb(133, 235, 232);
   transition: height 500ms;
   color: white;

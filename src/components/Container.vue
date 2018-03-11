@@ -14,6 +14,10 @@
 export default {
   name: 'Container',
   props: {
+    containerHeight: {
+      type: Number,
+      default: 0
+    },
     marginTop: {
       type: Number,
       default: 0
@@ -33,7 +37,10 @@ export default {
       return `height: ${height}px`
     },
     containerStyle () {
-      return `margin-top: ${this.marginTop}px`
+      return `
+      height: ${this.containerHeight}px;
+      margin-top: ${this.marginTop}px;
+      `
     }
   }
 }
