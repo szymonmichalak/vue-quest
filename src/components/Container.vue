@@ -11,9 +11,16 @@
 </template>
 
 <script>
+import { debounce } from 'lodash'
+import EventBus from '../utils/EventBus'
+
 export default {
   name: 'Container',
   props: {
+    id: {
+      type: String,
+      required: true
+    },
     containerHeight: {
       type: Number,
       default: 0
@@ -31,9 +38,14 @@ export default {
       default: 0
     }
   },
+  data: function () {
+    return {
+      level: this.waterLevel
+    }
+  },
   computed: {
     waterStyle () {
-      let height = this.waterLevel
+      let height = this.level
       return `height: ${height}px`
     },
     containerStyle () {
@@ -42,6 +54,57 @@ export default {
       margin-top: ${this.marginTop}px;
       `
     }
+  },
+  watch: {
+    level: function () {
+      if (this.level > this.channelLevel) {
+        EventBus.$emit('fillChannel')
+      } else {
+        EventBus.$emit('pourChannel')
+      }
+    }
+  },
+  methods: {
+    flowWater: debounce((data) => {
+      EventBus.$emit('flowWater', data)
+    }, 500)
+  },
+  created () {
+    EventBus.$on('addWater', (data) => {
+      if (data.id === this.id && this.level < this.containerHeight) {
+        this.level += data.amount
+
+        const waterExcess = this.level - this.channelLevel
+        if (!data.skipPhysics && waterExcess > 0) {
+          this.flowWater({ from: this.id, amount: waterExcess })
+        }
+      }
+    })
+
+    EventBus.$on('pourWater', (data) => {
+      if (data.id === this.id) {
+        this.level -= data.amount
+      }
+    })
+
+    EventBus.$on('flowWater', (data) => {
+      if (data.from !== this.id) {
+        if (this.level < this.containerHeight) {
+          if (this.level + data.amount <= this.channelLevel) {
+            EventBus.$emit('addWater', { id: this.id, amount: data.amount, skipPhysics: true })
+            EventBus.$emit('pourWater', { id: data.from, amount: data.amount })
+          } else {
+            const waterExcess = this.level - this.channelLevel
+            const waterLevelDifference = (data.amount - waterExcess) / 2
+
+            EventBus.$emit('addWater', { id: this.id, amount: waterLevelDifference, skipPhysics: true })
+            EventBus.$emit('pourWater', { id: data.from, amount: waterLevelDifference })
+          }
+        } else {
+          EventBus.$emit('addWater', Object.assign({}, data, { skipPhysics: true }))
+        }
+      }
+    })
   }
 }
 </script>

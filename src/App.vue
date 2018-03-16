@@ -8,15 +8,16 @@
     </button>
     <div class="row">
       <Container
+        id="A"
         :container-height="containerHeight"
-        :channel-level="channelLevelB"
+        :channel-level="channelLevelA"
         :water-level="waterLevelA"
       />
       <Channel
         :margin-bottom="channelLevelB"
-        :water-level="waterLevelChannel"
       />
       <Container
+        id="B"
         :container-height="containerHeight"
         :margin-top="containerDifference"
         :channel-level="channelLevelB"
@@ -27,6 +28,7 @@
 </template>
 
 <script>
+import EventBus from './utils/EventBus'
 import Container from './components/Container'
 import Channel from './components/Channel'
 
@@ -50,34 +52,11 @@ export default {
   computed: {
     channelLevelA: function () {
       return this.channelLevelB - this.containerDifference
-    },
-    waterLevelChannel: function () {
-      const waterExcess = this.waterLevelA - this.channelLevelA
-      return waterExcess > 0 ? waterExcess : 0
     }
   },
   methods: {
     addWaterTo: function () {
-      if (this.waterLevelA < this.containerHeight) {
-        this.waterLevelA += WATER_STEP
-        setTimeout(() => this.applyPhysics(), 500)
-      } else {
-        alert('Boom, too much water!')
-      }
-    },
-    applyPhysics: function () {
-      const waterExcessB = this.waterLevelB > this.channelLevelB ? this.waterLevelB - this.channelLevelB : 0
-      const waterExcessA = this.waterLevelA - this.channelLevelA - waterExcessB
-
-      if (waterExcessA > 0 && this.waterLevelB < this.containerHeight) {
-        if (this.waterLevelB < this.channelLevelB) {
-          this.waterLevelA -= waterExcessA
-          this.waterLevelB += waterExcessA
-        } else if (this.waterLevelB >= this.channelLevelB) {
-          this.waterLevelA -= (waterExcessA / 2)
-          this.waterLevelB += (waterExcessA / 2)
-        }
-      }
+      EventBus.$emit('addWater', { id: 'A', amount: WATER_STEP })
     }
   }
 }

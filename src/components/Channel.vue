@@ -11,6 +11,7 @@
 </template>
 
 <script>
+import EventBus from '../utils/EventBus'
 const maxHeight = 20
 
 export default {
@@ -19,10 +20,11 @@ export default {
     marginBottom: {
       type: Number,
       default: 0
-    },
-    waterLevel: {
-      type: Number,
-      default: 0
+    }
+  },
+  data: function () {
+    return {
+      level: 0
     }
   },
   computed: {
@@ -30,8 +32,17 @@ export default {
       return `margin-bottom: ${this.marginBottom}px`
     },
     waterStyle () {
-      return `height: ${this.waterLevel < maxHeight ? this.waterLevel : maxHeight}px`
+      return `height: ${this.level < maxHeight ? this.level : maxHeight}px`
     }
+  },
+  created () {
+    EventBus.$on('fillChannel', () => {
+      this.level = maxHeight
+    })
+
+    EventBus.$on('pourChannel', () => {
+      this.level = 0
+    })
   }
 }
 </script>
